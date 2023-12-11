@@ -1,0 +1,213 @@
+---
+title: 'PW7 : Principal Component Analysis'
+author: "Sandrine NEANG"
+date: "05/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<b>Exemple 1 : Decathlon Data<br>
+Question 1 : Install packages FactoMineR and factoextra</b>
+```{r question 1.1, echo = TRUE}
+library(FactoMineR)
+library(factoextra)
+```
+<br>
+
+<b>Load the demo data sets decathlon2 from the factoextra package using the data operator and show its first lines using head</b>
+```{r question 1.2, echo = TRUE}
+data(decathlon2)
+head(decathlon2)
+```
+<br>
+
+<b>Question 3 : Use str function to describe your data</b>
+```{r question 1.3, echo = TRUE}
+str(decathlon2)
+```
+<br>
+<b>Question 4 : Extract only active individuals and variables</b>
+```{r question 1.4, echo = TRUE}
+decathlon3 <-decathlon2[1:23,1:10]
+head(decathlon3)
+```
+<br>
+<b>Question 5 : Use the function PCA() from the FactoMineR package and construct a PCA on a scaled version of the decathlon2 data</b>
+```{r question 1.5, echo = TRUE}
+data<-PCA(scale(decathlon3),graph = FALSE)
+```
+<br>
+<b>Question 6 : Show the output list of the function PCA()</b>
+```{r question 1.6, echo = TRUE}
+print(data)
+```
+<br>
+<b>Question 7 : Examine the eigenvalues to determine the number of principal components to be considered using the function get_eigenvalue() from the factoextra packages</b>
+```{r question 1.7, echo = TRUE}
+get_eigenvalue(data)
+```
+<br>
+<b>Question 8 : Show the scree plot using the function fviz_eig() and discuss how many principal components are enough</b>
+```{r question 1.8, echo = TRUE}
+fviz_eig(data,addlabels = TRUE)
+```
+<br>
+<b>Question 9 : Plot the correlation circle using the </b>
+```{r question 1.9, echo = TRUE}
+fviz_pca_var(data)
+```
+<br>
+<b>Question 10 : Print the quality of representation of the variables and plot them</b>
+```{r question 1.10, echo = TRUE}
+get_pca_var(data)$cos2
+fviz_cos2(data,choice = 'var',fill='orange')
+```
+<br>
+<b>Question 11 : Color variables by their cos2 values using the argument col.var</b>
+```{r question 1.11, echo = TRUE}
+fviz_pca_var(data,col.var = 'cos2',)
+```
+<br>
+<b>Question 12 : Apply the function dimdesc() from FactoMineR, to show a dimension description and identify the most significantly associated variables with first principal components</b>
+```{r question 1.12, echo = TRUE}
+dimdesc(data,axes =c(1,2))$Dim.1
+dimdesc(data,axes =c(1,2))$Dim.2
+```
+<br>
+<b>Question 13 : Extract the results for individuals using the function get_pca_ind()</b>
+```{r question 1.13, echo = TRUE}
+get_pca_ind(data)
+```
+<br>
+<b>Question 14 : Produce the graph of individuals using fviz_pca_ind() and color individuals by their cos2 values</b>
+```{r question 1.14, echo = TRUE}
+fviz_pca_ind(data, col.ind="cos2",repel=TRUE)
+```
+<br>
+<b>Question 15 : Change the point size according the cos2 of the corresponding individuals</b>
+```{r question 1.15, echo = TRUE}
+fviz_pca_ind(data, col.ind="cos2",pointsize="cos2",repel=TRUE)
+```
+<br>
+<b>Question 16 : Specify supplementary individuals and variables, the function PCA()</b>
+```{r question 1.16 , echo = TRUE}
+data2<-PCA(decathlon2,ind.sup = 24:27,quanti.sup = 11:12,quali.sup = 13,graph=FALSE)
+```
+<br>
+<b>Question 17 : Predict results (coordinates, correlation and cos2) for the supplementary quantitative variable</b>
+```{r question 1.17, echo = TRUE}
+data2$quanti.sup
+```
+<br>
+<b>Question 18 : Predict results for the supplementary individuals (ind.sup) and visualize all individuals (active and supplementary ones)</b>
+```{r question 1.18, echo = TRUE}
+data2$ind.sup
+fviz_pca_ind(data2,repel=TRUE)
+```
+<br>
+<b>Question 19 : Color individuals by the supplementary qualitative variable (columns 13 corresponding to the type of competitions), using the argument habillage to specify the index of the supplementary qualitative variable</b>
+```{r question 1.19, echo = TRUE}
+fviz_pca_ind(data2, habillage = 13,palette = "jco", repel = TRUE)
+```
+<br>
+<b>Question 20 : Interpret and analyze the obtained results</b>
+
+The first component positively correlated to “strength” competations and negatively to speed ones The second one is linked to endurance and pole vault. The right side is for better points and smaller rank, i.,e. best players. The opposite profiles at at the left.
+
+When looking at the points representing Decastar and Olympic Games, we notice that this last one has higher coordinates on the first axis than the first one. This shows an evolution in the performances of the athletes. All the athletes who participated to the two competitions have then slightly better results for the Olympic Games.
+
+However, there is no difference between the points Decastar and Olympic Games for the second axis. This means that the athletes have improved their performance but did not change profile.
+
+We can see that the points which represent the same individual are in the same direction.
+<br>
+
+<b>Example 2 : IRIS Data<br>
+Question 1 : Download the csv iris dataset and import it into R. Show the correlation matrix of the quantitative variables.</b>
+```{r question 2.1, echo = TRUE}
+iris = read.csv("C:/Users/sandr/OneDrive/Documents/Scolarité/ESILV/M1 A4/S7/Machine Learning/TDs/Datas/iris.data")
+
+```
+<br><br>
+<b>Question 2 : Compare the means and the quartiles of the 3 different flower classes for the 4 different features</b>
+```{r question 2.2, echo = TRUE}
+par(mfrow = c(2, 2))
+
+# Lower to higher
+medians <- reorder(iris$class, iris$sepal_length, median)
+
+boxplot(iris$sepal_length ~ medians, las = 2, xlab = "", ylab = "")
+
+# Lower to higher
+medians <- reorder(iris$class, iris$sepal_width, median)
+
+boxplot(iris$sepal_width ~ medians, las = 2, xlab = "", ylab = "")
+
+# Lower to higher
+medians <- reorder(iris$class, iris$petal_length, median)
+
+boxplot(iris$petal_length ~ medians, las = 2, xlab = "", ylab = "")
+
+# Lower to higher
+medians <- reorder(iris$class, iris$petal_width, median)
+
+boxplot(iris$petal_width ~ medians, las = 2, xlab = "", ylab = "")
+```
+<br>
+<b>Question 3 : To explore how the 3 different flower classes are distributed along the 4 different features, visualize them via histograms using the ggplot packages through the geom_histogram plot.</b>
+```{r question 2.3, echo = TRUE}
+library(ggplot2) 
+
+ggplot(iris, aes(x=sepal_length, fill=class)) +
+  geom_histogram(binwidth=.2, alpha=.5) #histogram of sepal_length
+
+# histogram of sepal_width
+ggplot(iris, aes(x=sepal_width, fill=class)) +
+  geom_histogram(binwidth=.2, alpha=.5)
+# histogram of petal_length
+ggplot(iris, aes(x=petal_length, fill=class)) +
+  geom_histogram(binwidth=.2, alpha=.5)
+# histogram of petal_width
+ggplot(iris, aes(x=petal_width, fill=class)) +
+  geom_histogram(binwidth=.2, alpha=.5)
+
+
+par(mfrow=c(2,2))
+```
+<br>
+<b>Question 4 : Apply a PCA on the iris dataset using the princomp function and interpret the results</b>
+```{r question 2.4, echo = TRUE}
+pcairis=princomp(iris[,-5], cor=T) 
+# numerical columns for PCA.
+
+str(pcairis)  #internal structure of pcairis
+
+summary(pcairis) # variance explained by the pcs
+
+plot(pcairis)  #plot the variance explained by each pc
+
+biplot(pcairis) 
+```
+<br>
+<b>Question 5 : By using the factoextra packages, plot the scree plot, the graph of individuals, the graph of variables, the biplot graph and the contributions of the variables to the first 2 principal components.</b>
+```{r question 2.5, echo = TRUE}
+pcairis=princomp(iris[,-5], cor=T) 
+#Scree plot
+fviz_eig(pcairis,addlabels = TRUE)
+
+#The graph of individuals
+fviz_pca_ind(pcairis)
+
+#The graph of variables
+fviz_pca_var(pcairis)
+
+#The biplot graph
+fviz_pca_biplot(pcairis)
+
+#The contributions of the variables to the first 2 principal components
+fviz_pca_contrib(pcairis, choice="var", axes = 1, top = 2)
+
+```
+<br>

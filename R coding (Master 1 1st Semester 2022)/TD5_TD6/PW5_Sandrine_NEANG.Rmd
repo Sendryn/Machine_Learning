@@ -1,0 +1,219 @@
+---
+title: "TD5 (question 1 to question 17) & TD6 (question 18 - question 19)"
+author: "Sandrine NEANG"
+date: "23/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<br>
+
+<b>Question 1 : load the Boston dataset from MASS package and split the dataset randomly in half</b>
+```{r question 1, echo = TRUE}
+library(MASS)
+data("Boston")
+library(caTools)
+set.seed(123)
+sample <- sample.split(Boston, SplitRatio = 0.75)
+training_data <- subset(Boston, sample==TRUE)
+testing_data <- subset(Boston, sample==FALSE)
+```
+<br>
+
+<b>Question 2 : fit a regression tree to the training data using the rpart() function from the rpart package and name the tree Boston_tree</b>
+```{r question 2, echo = TRUE}
+library(rpart)
+Boston_tree = rpart(training_data)
+```
+<br>
+
+<b>Question 3 : plot the obtained tree using the following code</b>
+```{r question 3, echo = TRUE}
+plot(Boston_tree)
+text(Boston_tree, pretty = 0)
+title(main = "Regression Tree")
+```
+<br>
+
+<b>Question 4 : re-plot the tree by using the rpart.plot18 packages (rpart.plot() and prp())</b>
+```{r question 4, echo = TRUE}
+library(rpart.plot)
+rpart.plot(Boston_tree)
+prp(Boston_tree)
+```
+<br>
+
+<b>Question 5 : Print the obtained tree and print its summary. Print the CP table using the printcp() function to see the cross validation results. Plot a comparison figure using the plotcp() function.</b>
+```{r question 5, echo = TRUE}
+summary(Boston_tree)
+printcp(Boston_tree)
+plotcp(Boston_tree)
+```
+<br>
+
+<b>Question 6 : write a function that returns the RMSE of two vectors</b>
+```{r question 6, echo = TRUE}
+RMSE <- function(actual, predicted) {
+  result = sqrt(mean(actual - predicted)^2)
+  return(result)
+}
+```
+<br>
+
+<b>Question 7 : use the function predict() to predict the response on the test set then calculate the RMSE obtained with tree model.</b>
+```{r question 7, echo = TRUE}
+prediction1 = predict(Boston_tree, newdata = testing_data)
+RMSE(testing_data$medv, prediction1)
+```
+<br>
+
+<b>Question 8 : fit a linear regression model on the training set then predict the response on the test set using the linear model. Calculate the RMSE and compare the performance of the tree and the linear regression.</b>
+```{r question 8, echo = TRUE}
+linearmodel = lm(medv ~ ., data = training_data)
+prediction2 = predict(linearmodel, newdata = testing_data)
+RMSE(testing_data$medv, prediction2)
+```
+The RMSE of the prediction with linear regression model is better than the RMsE of the precedent prediction in the question 7.<br>
+<br>
+
+<b>Question 9 : let's plot the actual (reality) response value against the predicted values for both models in order to compare them.</b>
+```{r question 9, echo = TRUE}
+plot(prediction1, testing_data$medv)+abline(0,1,col="red")
+title("Single Tree, Test Data")
+plot(prediction2, testing_data$medv)+abline(0,1,col="red")
+title("Linear Model, Test Data")
+```
+<br>
+
+<b>Question 10 : fit a bagged model, using the randomForest() function from the randomForest package with mtry = p (p : number of predictors).</b>
+```{r question 10, echo = TRUE}
+library(randomForest)
+bagged_model = randomForest(medv ~ ., mtry = ncol(training_data)-1, data = training_data)
+```
+<br>
+
+<b>Question 11 : Predict the response on the test set using the bagging model and calculate the RMSE. Is the performance of the model better than linear regression or a simple tree ?</b>
+```{r question 11, echo = TRUE}
+prediction3 = predict(bagged_model, newdata = testing_data)
+RMSE(training_data$medv, prediction3)
+```
+The bagged model has a RMSE equals to 0.4967851 which is better than the simple tree model (RMSE = 19.51565) but the linear regression is still better (RMSE = 0.7008524). <br>
+<br>
+
+<b>Question 12 : Fit a random forest on the training set with mtry = p/3 (p : number of predictors) and compare its performance with the previous models by calculating the predictions and the RMSE.</b>
+```{r question 12, echo = TRUE}
+set.seed(1)
+random_forest = randomForest(medv ~ ., mtry = (ncol(training_data)-1)/3, data = training_data)
+prediction4 = predict(random_forest, newdata = testing_data)
+RMSE(training_data$medv,prediction4)
+```
+In comparison with the previous models, the RMSE of this random forest model is the lowest. Therefore, the model in this question has the best performance. 
+<br>
+
+<b>Question 13 : Use the function importance() from the randomForest package to see the most important predictors in the obtained random forest model.</b>
+```{r question 13, echo = TRUE}
+importance(random_forest)
+```
+The three most important predictors are : lstat, rm and ptratio.<br>
+<br>
+
+<b>Question 14 : Plot the importance of the preidctors to the model using the varImpPlot() function.</b>
+```{r question 14, echo = TRUE}
+varImpPlot(random_forest)
+```
+<br>
+
+<b>Question 15 : Using the gbm() function like following, fit a boosted model on the training set. Then compare its performance with the previous models by calculating the predictions and the RMSE.</b>
+```{r question 15, echo = TRUE}
+library(gbm)
+set.seed(2)
+boosted_model = gbm(medv ~ ., data = training_data, distribution = "gaussian", n.trees = 5000, interaction.depth = 4, shrinkage = 0.01)
+prediction5 = predict(boosted_model, newdata = testing_data)
+RMSE(training_data$medv, prediction5)
+```
+The boosted model has the same performance as the random forest model. Therefore the model is better than the single tree model, the linear model and the bagged model.
+<br>
+
+<b>Question 16 : Show the summary of the boosted model.</b>
+```{r question 16, echo = TRUE}
+summary(boosted_model)
+```
+The most important variable are lstat and rm.
+<br>
+
+<b>Question 17 : Construct a final plot to compare the four trained model.</b>
+```{r question 17, echo = TRUE}
+par(mfrow=c(2,2))
+
+plot(prediction1, testing_data$medv)+abline(0,1,col="red")
+title("Single Tree, Test Data")
+
+plot(prediction3, testing_data$medv)+abline(0,1,col="red")
+title("Bagging, Test Data")
+
+plot(prediction4, testing_data$medv)+abline(0,1,col="red")
+title("Random Forest, Test Data")
+
+plot(prediction5, testing_data$medv)+abline(0,1,col="red")
+title("Boosting, Test Data")
+```
+<br>
+
+<b>Classification tree / Question 18</b>
+```{r question 18 - intro, echo = TRUE}
+spam = read.csv("C:/Users/sandr/OneDrive/Documents/Scolarité/ESILV/M1 A4/S7/Machine Learning/TDs/Datas/spam.csv")
+library(MASS)
+class(spam$spam)
+spam$spam = factor(spam$spam)
+class(spam$spam)
+
+set.seed(3)
+sample2 <- sample.split(spam, SplitRatio = 0.75)
+training_spam <- subset(spam, sample==TRUE)
+testing_spam <- subset(spam, sample==FALSE)
+```
+<br>
+For each model, predict the response on the test set and evaluate the performance of the model, using the prediction accuracy (create a function that returns the accuracy for two binary vectors).
+<br>
+```{r question 18 - exo, echo = TRUE}
+accuracy <- function(actual, predicted){
+  m <- table(actual,predicted)
+  True_positive = m[1]
+  False_negative = m[3]
+  False_positive = m[2]
+  True_negative = m[4]
+  result = (True_positive + True_negative) / (True_positive + False_negative + False_positive + True_negative)
+  return(result)
+}
+
+logistic_model = glm(spam ~ ., family = binomial, data = training_spam)
+spam_prediction1 = predict(logistic_model, newdata = testing_spam)
+#accuracy(training_spam$spam, spam_prediction1)
+
+single_tree = rpart(training_spam)
+spam_prediction2 = predict(single_tree, newdata = testing_spam)
+#accuracy(training_spam$spam, spam_prediction2)
+
+bagging_model = randomForest(spam ~ ., mtry = ncol(training_spam)-1, data = training_spam)
+spam_prediction3 = predict(bagging_model, newdata = testing_spam)
+#accuracy(training_spam$spam, spam_prediction3)
+
+randomforest_model = randomForest(spam ~ ., mtry = (ncol(training_spam)-1)/3, data = training_spam)
+spam_prediction4 = predict(randomforest_model, newdata = testing_spam)
+#accuracy(training_spam$spam, spam_prediction4)
+
+boosting_model = gbm(spam ~ ., data = training_spam, distribution = "gaussian", n.trees = 5000, interaction.depth = 4, shrinkage = 0.01)
+spam_prediction5 = predict(boosting_model, newdata = testing_spam)
+#accuracy(training_spam$spam, spam_prediction5)
+```
+<br>
+<b>Tuning tree / Question 19 : Use the caret functions to tune your trained models.</b>
+```{r question 19, echo = TRUE}
+library(caret)
+set.seed(55)
+fitControl = trainControl(method = "repeatedcv", number = 10, repeats = 10)
+gbmFit = train(spam ~ ., data = training_spam, method = "gbm", trControl = fitControl, verbose = FALSE)
+```
+<br>

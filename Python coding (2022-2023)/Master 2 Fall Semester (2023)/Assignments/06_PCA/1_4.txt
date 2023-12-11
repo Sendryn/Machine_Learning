@@ -1,0 +1,12 @@
+Section 1.4
+
+Judging from all these plots, which dimensions do you think correlate best with the first dimension?
+The best plot that are correlating best with the first dimension are : 1st plot, 3rd plot, 4th plot, 21st plot, 23rd plot and 24th plot.
+
+
+Using the information about the dataset, what are the names of those features?
+Those features are : radius_mean, perimeter_mean, area_mean, radius_worst, perimeter_worst, area_worst.
+
+
+Can you explain why it makes sense that these are the dimensions that best correlate with the first one as opposed to the other dimensions?
+These plots are the best correlated one with the first dimension because of the linear curve pattern that we can see in each of these plots.

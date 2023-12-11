@@ -1,0 +1,237 @@
+---
+title: "PW3 - Multiple Linear Regression"
+author: "Sandrine NEANG - SB2"
+date: "05/10/2022 & 08/10/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<br>
+
+<b>Question 1 : load the Boston dataset from MASS package</b>
+```{r question 1, echo = TRUE}
+library(MASS)
+data("Boston")
+```
+<br>
+
+<b>Question 2 : split the dataset Boston into training set and testing test</b>
+```{r question 2, echo = TRUE}
+variables = c("crim", "zn", "indus", "chas", "nox", "rm","age", "dis","rad", "tax","ptratio", "black","lstat", "medv")
+train = 1:400
+test = -train
+training_data = Boston[train, variables]
+testing_data = Boston[test, variables]
+```
+<br>
+
+<b>Question 3 : is there a linear relationship between the variables "medv" and "age" ?</b> 
+```{r question 3, echo = TRUE}
+cor(training_data$medv, training_data$age) 
+```
+The correlation value is not equals to zero, there is a linear relationship.</p>
+<br>
+
+<b>Question 4 : fit a model of housing prices in function of age and plot the observations and the regression line</b>
+```{r question 4, echo = TRUE}
+model1 = lm(medv~age, data = training_data)
+plot(training_data$age, training_data$medv,
+     xlab="Age of the house",
+     ylab="Median House Value",
+     col="red",
+     pch=20)
+
+abline(model1,col="blue",lwd=3)
+```
+<br>
+
+<b>Question 5 : train a regression model using both lstat and age as predictors of median house value</b>
+```{r question 5, echo = TRUE}
+model2 = lm(medv ~log(lstat) + age, data=training_data)
+model2
+
+library(rgl)
+options(rgl.printRglwidget = TRUE)
+
+rgl::plot3d(log(Boston$lstat),
+            Boston$age,
+            Boston$medv, type = "p",
+            xlab = "log(lstat)",
+            ylab = "age",
+            zlab = "medv", site = 5, lwd = 15)
+
+
+rgl::planes3d(model2$coefficients["log(lstat)"],
+              model2$coefficients["age"], -1,
+              model2$coefficients["(Intercept)"], alpha = 0.3, front = "line")
+```
+<br>
+
+<b>Question 6 : print the summary of the obtained regression model</b>
+``` {r Question 6, echo = FALSE}
+summary(model2)
+```
+<br>
+
+<b>Question 7 : are the predictors significant ?</b><br>
+p-value is below 2.2e-16 which means that the null hypothesis can be rejected and our results likely did not happen by chance
+therefore there is a significant association between the predictor and the outcome variables.
+<br><br>
+
+<b>Question 8 : is the model as a whole is significant ?</b><br>
+```{r question 8.1, echo = FALSE}
+plot(model2,1) 
+```
+<br>Here, linearity is violated because the red line isn't strictly horizontal.
+
+```{r question 8.2, echo = FALSE}
+plot(model2,2)
+```
+<br>Values with theoretical quantiles > 1 are not following the line.
+
+```{r question 8.3, echo = FALSE}
+plot(model2,3)
+```
+<br>The points are not equally spread in the plot which means that our model is a heteroscedacity model.
+
+```{r question 8.5, echo = FALSE}
+plot(model2,5)
+``` 
+<br>There are influential points in our regression model (extreme values that influence the regression results).
+
+Therefore, this model as a whole isn't significant. <br>
+<br>
+
+<b>Question 9 : train a new model using all the variables of the dataset</b>
+```{r question 9, echo = TRUE}
+model3 = lm(medv ~ ., data=training_data)
+model3
+```
+<br>
+
+<b>Question 10 : re train the model using log(lstat) instead of lstat</b>
+```{r question 10, echo = TRUE}
+model4 = lm(medv ~ . + log(lstat) - lstat, data=training_data)
+model4
+``` 
+<br>
+
+<b>Question 11 : did R² improve ? Yes</b><br>
+model3 : Multiple R-squared:  0.7339,	Adjusted R-squared:  0.7249  <br>
+model4 : Multiple R-squared:  0.785,	Adjusted R-squared:  0.7777  <br>
+<br>
+
+<b>Question 12 : to see if there is correlated variables, print the correlation matrix using the cor() function</b>
+```{r question 12, echo = TRUE}
+round(cor(training_data),2)
+``` 
+<br>
+
+<b>Question 13 : visualize the correlations using the corrplot package, then use the function corrplot.mixed()</b>
+```{r question 13, echo = TRUE}
+library(corrplot)
+M = cor(training_data)
+corrplot(M, method = 'color')
+``` 
+<br>
+
+<b>Question 14 : what is the correlation between tax and rad?</b>
+```{r question 14, echo = TRUE}
+cor(training_data$tax,training_data$rad)
+```
+
+<br>
+
+<b>Question 15 : run the model again without tax, what happens to the R² and for the F-statistic ?</b>
+```{r question 15, echo = TRUE}
+model5 = lm(medv ~ . + log(lstat) - lstat - tax, data=training_data)
+summary(model5)
+```
+<br>
+<b>model4 :</b><br>
+Residual standard error: 4.321 on 386 degrees of freedom<br>
+Multiple R-squared:  0.785,	Adjusted R-squared:  0.7777 <br>
+F-statistic: 108.4 on 13 and 386 DF,  p-value: < 2.2e-16<br><br>
+
+<b>model5 :</b><br>
+Residual standard error: 4.39 on 387 degrees of freedom<br>
+Multiple R-squared:  0.7775,	Adjusted R-squared:  0.7706 <br>
+F-statistic: 112.7 on 12 and 387 DF,  p-value: < 2.2e-16
+<br><br>
+
+R² decrease a little bit because we deleted one of the variables.<br>
+F-statistic increase from 108.4 to 112.7 which means the p-values gets lower and the model is more significant without rad variable.<br>
+<br>
+
+<b>Question 16 : calculate the mean squared error (MSE) for the last model</b>
+```{r question 16, echo = TRUE}
+RSE=4.39
+R2=0.7775
+Fstatistic=112.7
+
+error = RSE/mean(training_data$medv)
+error
+```
+<br>
+
+<b>Question 17 : Use command str() to see how the variable chas is present in the dataset. How many of the suburbs in this dataset bound the Charles river ?</b>
+```{r question 17, echo = TRUE}
+str(training_data$chas)
+```
+Any suburbs bound the Charles river.<br>
+<br>
+
+<b>Question 18 : Create boxplots of the median value of houses with respect to the variable chas. Do we observe some difference between the median value of houses with respect to the neighborhood to Charles River ?</b>
+```{r question 18, echo = TRUE}
+library(ggplot2)
+p = ggplot(training_data, aes(x=chas,y=medv))+geom_boxplot()
+p
+```
+<br>
+
+<b>Question 19 : Calculate μi and μj (using the function aggregate())</b>
+```{r question 19, echo = TRUE}
+aggregate(training_data[,c("chas","medv")], list(training_data$chas),mean)
+```
+<br>
+
+<b>Question 20 : Apply an ANOVA test of medv which respect to chas. Print the result and the summary of it. What do you conclude ?</b>
+```{r question 20, echo = TRUE}
+fit <- aov(medv ~ chas, data=training_data)
+summary(fit)
+```
+<br>
+
+
+<b>Question 21 : Fit a new model where the predictors are the Charles River and the Crime Rate. Interpret the coefficients of this model and conclude if the presence of the river adds a valuable information for explaining the house price.</b>
+```{r question 21, echo = TRUE}
+model6 <- lm(medv ~ chas + crim, data = training_data)
+summary(model6)
+```
+<br>
+
+<b>Question 22 : Is chas is significant as well in the presence of more predictors ?</b>
+```{r question 22, echo = TRUE}
+model5 = lm(medv ~ . + log(lstat) - lstat - tax, data=training_data)
+summary(model5)
+```
+<br>
+
+<b>Question 23 : Fit a model with first order interaction term where predictors are lstat and age. Print its summary.</b>
+```{r question 23, echo = TRUE}
+model7 <- lm( medv ~ log(lstat) + age + log(lstat)*age, data = training_data)
+summary(model7)
+```
+<br>
+
+<b>Question 24 : Fit a model with all the first order interactions terms.</b>
+```{r question 24, echo = TRUE}
+model8 <- lm( medv ~ .^2, data = training_data)
+summary(model8)
+```
+<br>
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

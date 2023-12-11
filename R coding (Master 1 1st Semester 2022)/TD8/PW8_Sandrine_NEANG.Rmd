@@ -1,0 +1,283 @@
+---
+title: "PW8 Machine Learning"
+author: "Sandrine NEANG"
+date: "07/12/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<b>K-means<br>
+Question 1 : Download the dataset: Ligue1 2017-2018 and import it into R. Put the argument row.names to 1.</b>
+```{r Kmeans-1, echo = TRUE}
+ligue1 = read.csv("C:/Users/sandr/OneDrive/Documents/Scolarité/ESILV/M1 A4/S7/Machine Learning/TDs/Datas/ligue1_17_18.csv", row.names=1, sep=";")
+head(ligue1)
+```
+<br>
+<b>Question 2 : Print the two rows of the dataset and the total number of features in this dataset.</b>
+```{r Kmeans-2 , echo = TRUE}
+library(knitr)
+knitr::kable(head(ligue1[1:2,] ), "simple")
+```
+<br>
+<b>Question 3 : Create a new dataset in which you consider only Points and Yellow.cards from the original dataset. Name it pointsCards.</b>
+```{r Kmeans-3 , echo = TRUE}
+pointscards <- ligue1[, c("Points", "yellow.cards")]
+
+knitr::kable(head(pointscards,"Points","yellow.cards"))
+```
+<br>
+<b>Question 4 : Apply k-means on pointsCards. Chose k=2 clusters and put the number of iterations to 20. Store your results into km.</b>
+```{r Kmeans-4 , echo = TRUE}
+set.seed(123)
+km=kmeans(pointscards,2)
+```
+<br>
+<b>Question 5 : Print and describe what is inside km.</b>
+```{r Kmeans-5 , echo = TRUE}
+print(km)
+```
+<br>
+<b>Question 6 : What are the coordinates of the centers of the clusters?</b>
+```{r Kmeans-6 , echo = TRUE}
+print(km$centers)
+```
+<br>
+<b>Question 7 : Plot the data (Yellow.cards vs Points). Color the points corresponding to their cluster.</b>
+```{r Kmeans-7 , echo = TRUE}
+plot(pointscards[, 1], pointscards[, 2],col=km$cluster,pch=20,cex=3)
+```
+<br>
+<b>Question 8 : Add to the previous plot the clusters centroids and add the names of the observations.</b>
+```{r Kmeans-8 , echo = TRUE}
+plot(pointscards[, 1], pointscards[, 2],col=km$cluster,pch=20,cex=3)
+points(km$centers,col=1:2,pch=3,cex=3,lwd=3, title(main = "Yellow Cards vs Points"))
+```
+<br>
+<b>Question 9 : Re-run k-means on pointsCards using 3 and 4 clusters and store the results into km3 and km4 respectively. Visualize the results like in question 7 and 8.</b>
+```{r Kmeans-9 , echo = TRUE}
+km3=kmeans(pointscards,3)
+print(km3)
+plot(pointscards[, 1], pointscards[, 2],col=km3$cluster,pch=20,cex=3)
+points(km3$centers,col=1:2,pch=3,cex=3,lwd=3)
+
+km4=kmeans(pointscards,4)
+print(km4)
+
+plot(pointscards[, 1], pointscards[, 2],col=km4$cluster,pch=20,cex=3)
+points(km4$centers,col=1:2,pch=3,cex=3,lwd=3)
+```
+<br>
+<b>Question 10 : Visualize the "within groups sum of squares" of the k-means clustering results.</b>
+```{r Kmeans-10 , echo = TRUE}
+mydata=pointscards
+wss=(nrow(mydata)-1)*sum(apply(mydata,2,var))
+for (i in 2:15) wss[i]=sum(kmeans(mydata,centers=i)$withinss)
+plot(1:15, wss, type="b", xlab="Number of Clusters",ylab="Within groups sum of squares")
+```
+<br>
+<b>Question 11 : Modify the code of the previous question in order to visualize the 'between_SS / total_SS'. Interpret the results.</b>
+```{r Kmeans-11 , echo = TRUE}
+mydata=pointscards
+wss = (nrow(mydata)-1)*sum(apply(mydata,2,var))
+for (i in 2:15) wss[i]=sum(kmeans(mydata,centers=i)$betweenss)
+plot(1:15, wss, type="b", xlab="Number of Clusters",ylab="Within groups sum of squares")
+```
+<br>
+<b>Question 12 : Now we consider all features. Scale the dataset and transform it to a data frame again. Store the scaled dataset into ligue1_scaled.</b>
+```{r Kmeans-12 , echo = TRUE}
+ligue1_scaled=scale(ligue1[,-(1)])
+```
+<br>
+<b>Question 13 : Apply kmeans() on ligue1 and ligue1_scaled using 3 clusters and 20 iterations. Store the results into km.ligue1 and km.ligue1.scaled respectively.</b>
+```{r Kmeans-13 , echo = TRUE}
+set.seed(123)
+km.ligue1=kmeans(ligue1[,-(1)],centers=3, iter.max = 20)
+km.ligue1.scaled=kmeans(ligue1_scaled,centers=3, iter.max = 20)
+```
+<br>
+<b>Question 14 : How many observations there are in each cluster of km.ligue1 and km.ligue1.sclaed ?</b>
+```{r Kmeans-14 , echo = TRUE}
+table(km.ligue1$cluster)
+table(km.ligue1.scaled$cluster)
+```
+<br>
+<b>Question 15 : Apply PCA on ligue1 dataset and store your results in pcaligue1. Do we need to apply PCA on the scaled dataset?</b>
+```{r Kmeans-15 , echo = TRUE}
+library(FactoMineR)
+library(factoextra)
+pcaligue1=PCA(ligue1)
+PCA(ligue1_scaled)
+```
+<br>
+<b>Question 16 : Plot the observations and the variables on the first two principal components (biplot). Interpret the results.</b>
+```{r Kmeans-16 , echo = TRUE}
+
+```
+<br>
+<b>Question 17 : Visualize the teams on the first two principal components and color them with respect to their cluster.</b>
+```{r Kmeans-17 , echo = TRUE}
+fviz_cluster(km.ligue1, data = ligue1,
+             palette = c("red", "blue", "green"), 
+             ggtheme = theme_minimal(),
+             main = "Clustering Plot")
+```
+<br>
+<b>Question 18 : Recall that the figure of question 17 is a visualization with PC1 and PC2 of the clustering done with all the variables, not on PC1 and PC2. Now apply the kmeans() clustering taking only the first two PCs instead the variables of original dataset. Visualize the results and compare with the question 17.</b>
+```{r Kmeans-18 , echo = TRUE}
+fviz_cluster(km, data = pointscards, 
+             palette = c("red", "blue"), 
+             ggtheme = theme_minimal(),
+             main = "Clustering Plot"
+)
+
+fviz_cluster(km3, data = pointscards, 
+             palette = c("red", "blue", "green"), 
+             ggtheme = theme_minimal(),
+             main = "Clustering Plot"
+) 
+
+```
+<br><br>
+<b>Hierarchical Clustering<br>
+Question 1 : Load the file "customer.csv" and name the data : "customer_data".</b>
+```{r question 1, echo = TRUE}
+customer_data = read.csv("C:/Users/sandr/OneDrive/Documents/Scolarité/ESILV/M1 A4/S7/Machine Learning/TDs/Datas/customer.csv")
+```
+<br>
+<b>Question 2 : Show its summary and structure.</b>
+```{r question 2, echo = TRUE}
+summary(customer_data)
+head(customer_data)
+str(customer_data)
+```
+<br>
+<b>Question 3 : Check that there is no missing data and then normalize the customer data into the same scale.</b>
+```{r question 3, echo = TRUE}
+is.na(customer_data)
+customer <- scale(customer_data[,-1]) 
+```
+<br>
+<b>Question 4 : Compute the Hopkins statistic and evaluate the cluster structure.</b>
+```{r question 4, echo = TRUE}
+library(factoextra)
+res <- get_clust_tendency(customer_data, n = nrow(customer_data)-1, graph = FALSE)
+res$hopkins_stat
+```
+<br>
+<b>Question 5 : Estimate the optimal number of cluster for the customer data using NbClust function.</b>
+```{r question 5, echo = TRUE}
+library(NbClust)
+customer_scaled <- scale(customer_data)
+
+res.nbclust <- NbClust(customer_scaled, distance = "euclidean",
+                       min.nc = 2, max.nc = 9, 
+                       method = "complete", index ="all")
+factoextra::fviz_nbclust(res.nbclust) + theme_minimal() + ggtitle("NbClust's optimal number of clusters")
+```
+<br>
+<b>Question 6 : Use agglomerative hierarchical clustering to cluster the customer data.</b>
+```{r question 6, echo = TRUE}
+hc <- hclust(dist(customer, method = "euclidean"), method = "ward.D2")
+hc
+```
+<br>
+<b>Question 7 : Plot the dendograph by specifying hand to display labels at the bottom of the dendogram, and cex to shrink the label to 70 percent of the normal size.</b>
+```{r question 7, echo = TRUE}
+plot(hc,hang = -0.01, cex = 0.7)
+```
+<br>
+<b>Question 8 : Cut trees into clusters and show cluster labels for the data.</b>
+```{r question 8, echo = TRUE}
+show_cluster <- cutree(hc, k=4)
+show_cluster       
+```
+<br>
+<b>Question 9 : Show the count of data within each cluster using the function table.</b>
+```{r question 9, echo = TRUE}
+table(show_cluster)
+```
+<br>
+<b>Question 10 : Visualize the clustered data with red rectangle border.</b>
+```{r question 10, echo = TRUE}
+plot(hc)
+rect.hclust(hc,k=4, border="red")
+```
+<br>
+<b>Question 11 : Hilight the cluster 2 with red rectangle border.</b>
+```{r question 11, echo = TRUE}
+plot(hc)
+rect.hclust(hc,k = 4, which = 2, border = "red")
+```
+<br>
+<b>Question 12 : Using the function fviz_cluster() in factoextra, visualize the result in a scatter plot: Observations are represented by points in the plot, using principal components. A frame is drawn around each cluster.</b>
+```{r question 12, echo = TRUE}
+library(dendextend)
+dendogram <- customer %>% dist %>% hclust %>% as.dendrogram
+dendogram %>%plot(horiz=TRUE, main="Horizontal Dendrogram")
+
+#Color the branch according to the cluster it belongs to:
+dendogram %>% color_branches(k=4) %>% plot(horiz=TRUE, main ="Horizontal Dendrogram")
+#Add a red rectangle around the clusters:
+dendogram %>% rect.dendrogram(k=4,horiz=TRUE)
+#Add a line to show the tree cutting location:
+abline(v = heights_per_k.dendrogram(dendogram)["4"] + .1, lwd = 2,lty = 2, col = "blue")
+
+fviz_cluster(list(data = customer, cluster = show_cluster))
+```
+<br>
+<b>Question 13 : Compute two hierarchical clustering using 'complete' and 'centroid' linkage. Compute two dendograms and use the function tanglegram() to plot the two dendograms, side by side, with their labels connected by lines.</b>
+```{r question 13, echo = TRUE}
+#Compute two hierarchical clusterings
+hc1 <- hclust((dist(customer, method="euclidean")), method="average")
+hc2 <- hclust((dist(customer, method="euclidean")), method="ward.D2")
+
+#Compute two dendograms
+dendogram1 <- as.dendrogram((hc1))
+dendogram2 <- as.dendrogram((hc2))
+
+#Create a list of dendrograms
+dend_list <- dendlist(dendogram1, dendogram2)
+
+# plots two dendrograms side by side
+
+tanglegram(dendogram1, dendogram2)
+```
+<br>
+<bQuestion 14 : The quality of the alignment of the two trees can be measured using the function entanglement() (a 1 score is the best possible value).></b>
+```{r question 14, echo = TRUE}
+#The quality measurement
+tanglegram(dendogram1, dendogram2,
+  highlight_distinct_edges = FALSE, 
+  common_subtrees_color_lines = FALSE, 
+  common_subtrees_color_branches = TRUE, 
+  main = paste("entanglement =", round(entanglement(dend_list), 2))
+  )
+```
+<br>
+<b>Question 15 : Compare simultaneously multiple dendrograms using the chaining operator %>% (available in dendextend) which is used to run multiple function at the same time.</b>
+```{r question 15, echo = TRUE}
+library(corrplot)
+
+# Create multiple dendrograms by chaining
+dendogram1 <- customer %>% dist %>% hclust("com") %>% as.dendrogram
+dendogram2 <- customer %>% dist %>% hclust("single") %>% as.dendrogram
+dendogram3 <- customer %>% dist %>% hclust("ave") %>% as.dendrogram
+dendogram4 <- customer %>% dist %>% hclust("centroid") %>% as.dendrogram
+```
+<br>
+<b>Question 16 : Find which hierarchical clustering methods can identify stronger clustering structures among the following linkages : “average”, “single”,“complete” and “ward”.</b>
+```{r question 16, echo = TRUE}
+# Compute correlation matrix
+dend_list <- dendlist("Complete" = dendogram1, "Single" = dendogram2,
+                      "Average" = dendogram3, "ward" = dendogram4)
+cors <- cor.dendlist(dend_list)
+# Print correlation matrix
+round(cors, 2)
+
+# Visualize the correlation matrix using corrplot package
+corrplot(cors, "pie", "lower")
+```
+<br>

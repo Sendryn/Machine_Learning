@@ -1,0 +1,157 @@
+---
+title: "PW4 - Logistic Regression"
+author: "Sandrine NEANG"
+date: "15/10/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<b>Social Networks Ads</b><br>
+
+<b>Question 1 : Import the Social_Network_Ads dataset into R.</b><br>
+```{r question1, echo=TRUE}
+Social_Network_Ads <- read.csv("~/Scolarité/ESILV/M1 A4/S7/Machine Learning/TDs/Datas/Social_Network_Ads.csv")
+```
+<br>
+
+<b>Question 2 : Describe the dataset.</b><br>
+```{r question2, echo=TRUE}
+str(Social_Network_Ads)
+summary(Social_Network_Ads)
+```
+
+<b>Question 3 : Split the dataset ramdomly into training set and test set with caTools packages.</b><br>
+```{r question3, echo=TRUE}
+library(caTools)
+set.seed(123)
+sample <- sample.split(Social_Network_Ads, SplitRatio = 0.75)
+train <- subset(Social_Network_Ads, sample==TRUE)
+test <- subset(Social_Network_Ads, sample==FALSE)
+```
+
+<b>Question 4 : Scale the input variables (Age and EstimatedSalary) in both training set and test set.</b><br>
+```{r question4, echo=TRUE}
+train$Age = (train$Age - mean(train$Age))/sd(train$Age)
+train$EstimatedSalary = (train$EstimatedSalary - mean(train$EstimatedSalary))/sd(train$EstimatedSalary)
+
+test$Age = (test$Age - mean(test$Age))/sd(test$Age)
+test$EstimatedSalary = (test$EstimatedSalary - mean(test$EstimatedSalary))/sd(test$EstimatedSalary)
+
+head(train)
+head(test)
+```
+
+<b>Question 5 : Fit a simple logistic regression model of Purchased in function of Age.</b><br>
+```{r question5, echo=TRUE}
+model1 = glm(formula = Purchased ~ Age, data=train, family=binomial)
+```
+
+<b>Question 6 : In the argument family of the function glm, we chose binomial. Why?</b></br>
+We chose binomial family because the Purchased variable is a categorical variable which using numerical predictors.
+
+<b>Question 7 : What is the equation of the obtained model in the question 5?</b><br>
+```{r question7, echo=TRUE}
+summary(model1)
+model1$coefficients
+```
+The equation is : Purchased = 2.0252322 *Age - 0.8963671<br><br>
+
+<b>Question 8 : Is the feature Age significant?</b><br>
+The p-value of Age variable is significantly smaller than 0.05 so Age is significant.<br><br>
+
+<b>Question 9 : What is the value of AIC of the model ?</b><br>
+```{r question9, echo=TRUE}
+AIC(model1)
+```
+
+<b>Question 10 : Plot Purchased in function of Age and add the curve of the obtained logistic regression model.</b><br>
+```{r question10, echo=TRUE}
+library(ggplot2)
+
+ggplot(train, aes(x=train$Age, y=train$Purchased)) + geom_point() +
+      stat_smooth(method="glm", color="green", se=FALSE,
+                method.args = list(family=binomial))
+```
+
+<b>Question 11 : Fit a logistic regression model of Purchasing the product in function of the Age of the user and its Salary.</b><br>
+```{r question11, echo=TRUE}
+model2 = glm(formula = Purchased ~ Age + EstimatedSalary, data=train, family=binomial)
+summary(model2)
+```
+
+<b>Question 12 : Are the predictors significant?</b><br>
+The p-value of the Age and EstimatedSalary variables are below 0.05 which means that the null hypothesis can be rejected and our results likely did not happen by chance
+therefore the predictors are significant in this logistic regression model.
+<br><br>
+
+<b>Question 13 : Did the model get better by adding the EstimatedSalary?</b><br>
+By adding the EstimatedSalary, the model get better.<br><br>
+
+
+<b>Question 14 : On the test set, predict the probability of purchasing the product by the users using the obtained model.</b><br>
+```{r question14, echo=TRUE}
+Predicted_data <- predict(model2, test, typ = "response")
+```
+
+<b>Question 15 : We predicted the probability that the user will purchase the product. Now in order to compare our results with the real answers, transform the predicted values to 0 or 1 (1 if > 0.5).</b><br>
+```{r question15, echo=TRUE}
+Predicted_data <- ifelse(Predicted_data > 0.5, 1, 0 )
+Predicted_data
+```
+
+<b>Question 16 : To evaluate the predictions, compute the confusion matrix. What do you obtain ?</b><br>
+```{r question16, echo=TRUE}
+library(caret)
+matrix <- confusionMatrix(factor(Predicted_data), factor(test$Purchased))
+matrix
+```
+
+<b>Question 17 : Calculate the accuracy, specificity, sensitivity and the precision of the model.</b><br>
+```{r question17, echo=TRUE}
+accuracy = matrix$overall['Accuracy']
+accuracy
+specificity = matrix$byClass['Specificity']
+specificity
+sensitivity = matrix$byClass['Sensitivity']
+sensitivity
+precision = matrix$byClass['Pos Pred Value'] 
+precision
+```
+
+<b>Question 18 : Plot the ROC curve and calculate AUC value.</b><br>
+```{r question18, echo=TRUE}
+library(ROCR)
+
+pred <- prediction(Predicted_data, test$Purchased)
+
+roc=performance(pred,"tpr","fpr")
+plot(roc ,main ="ROC curve - Logistic Regression ")
+
+
+auc_ROCR <- performance(pred, measure = "auc")
+auc_ROCR <- auc_ROCR@y.values[[1]]
+auc_ROCR
+```
+
+<b>Question 19 : Compare the AUC of the two models you fitted (one with only age and one with age and estimated salary) and plot their ROC curves in the same figure.</b><br>
+```{r question19, echo=TRUE}
+Predicted2 <- predict(model1, test,typ = "response")
+pred_2 <- prediction(Predicted2, test$Purchased)
+
+auc_2<- performance(pred_2, measure = "auc")
+auc_2 <- auc_2@y.values[[1]]
+auc_2
+
+roc_2=performance(pred_2,"tpr","fpr")
+plot(roc_2 ,main ="ROC curve - Logistic Regression ")
+
+plot(roc, colorize = TRUE)
+plot(roc_2, add = TRUE, colorize = TRUE)
+```
+
+
+
+

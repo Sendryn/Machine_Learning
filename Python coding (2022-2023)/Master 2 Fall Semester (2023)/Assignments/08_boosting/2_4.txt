@@ -1,0 +1,19 @@
+Upload the Gradient boosting classifier accuracy, precision and recall on the test set. How does it compare to the random forest classifier?
+
+RandomForestClassifier
+accuracy = 0.8208955223880597
+precision = 0.7956989247311828
+recall = 0.7184466019417476
+
+GradiantBoostingClassifier
+accuracy = 0.8246268656716418
+precision = 0.8111111111111111
+recall = 0.7087378640776699
+
+Accuracy: The Gradient Boosting Classifier has a slightly higher accuracy (0.8246) compared to the Random Forest Classifier (0.8209).
+
+Precision: The Gradient Boosting Classifier also has a higher precision (0.8111) compared to the Random Forest Classifier (0.7957). This indicates that, among the instances predicted as positive, a higher proportion are true positives for the Gradient Boosting model.
+
+Recall: The Random Forest Classifier has a higher recall (0.7184) compared to the Gradient Boosting Classifier (0.7087). This means that the Random Forest Classifier is better at capturing a higher proportion of actual positive instances.
+
+In conclusion, the Gradient Boosting Classifier performs slightly better in terms of accuracy and precision, except for recall where both classifier is similar. 

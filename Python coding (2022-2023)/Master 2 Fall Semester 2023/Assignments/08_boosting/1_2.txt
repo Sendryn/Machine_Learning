@@ -1,0 +1,3 @@
+Write a short summary about your change to get_titanic.
+
+I replaced the NaN values of the Age column with the mean of all the value of this column.

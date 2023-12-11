@@ -1,0 +1,4 @@
+We cannot expect to have exactly (0, -1, 1) as the batch estimate.
+Indeed, it depends to multiple factors such as the patterns and information present in the data where a certain degree of uncertainty is involved. 
+Therefore, to make the batch estimate more accurate, we can consider updating the estimate of the parameters as new data arrives. This is called doing sequential processing or online learning. Another option would be to ensure that the data used for training and testing is high quality and free from errors. 
+These solutions will help to improve the accuracy of the batch estimate. 

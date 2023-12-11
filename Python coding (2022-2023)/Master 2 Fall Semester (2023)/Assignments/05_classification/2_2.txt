@@ -1,0 +1,12 @@
+Section 2.2
+
+1. What is the accuracy of each method?
+The accuracy of both method is between 88% and 100% and it is often the same. It is usually around 95%.
+
+
+2. How are the confusion matrices? Use your own code from assignment 1 and compare the matrices.
+The confusion matrices are similar or exactly the same in the same way as both method has the same accuracy.
+
+
+3. How do you interpret the differences? Why is/is not a difference in accuracy?
+There is not that much difference between the maximum_likelihoods function and the maximum_aposteriori function in terms of results in accuracy. We can say that both method has the same performance due to the fact that we are using the same data set and the classes in our dataset are maybe well-balanced which leads to a similar results for each method. 

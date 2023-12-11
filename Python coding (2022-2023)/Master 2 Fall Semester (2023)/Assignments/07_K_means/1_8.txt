@@ -1,0 +1,8 @@
+According to the results from section 1.7, what is the best value of k according to the objective function?
+The best value of k are the lowest value according to the objective function.
+
+If we have n samples and we set k=n, what would happen ?
+Each sample would be treated as its own cluster.
+
+Is it a good strategy to set k=n? Why/Why not?
+Not a good strategy because each sample is treated as a seperate cluster and this is not what we want in clustering.

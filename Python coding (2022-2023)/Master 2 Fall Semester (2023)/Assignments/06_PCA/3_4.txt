@@ -1,0 +1,8 @@
+Using your knowledge about PCA and your plots, can you explain why they look like they do? Explain why the eiginvalue plot has the trend that it does and the same for the cumulative variance plot.
+
+
+The eiginvalue plot has a decreasing trend because the first values are more significant than the last values. Indeed, the eigenvalues represent the amount of variance captured by each principal component.
+
+The comulative variance plot, in opposition with the eiginvalue plot, has an increasing trend where it rises rapidly at first and then become gradually constant after around the 5th index of eiginvalues. This means the more the indexes are increasing, the more the variance of the eigenvalues will be incremented and summed up. This shows us that the first eigenvalues are the one which have the most important variance.
+
+

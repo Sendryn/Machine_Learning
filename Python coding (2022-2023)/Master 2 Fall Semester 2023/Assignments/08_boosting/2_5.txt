@@ -1,0 +1,6 @@
+Run this function and report which are the best values of parameters.
+
+The function param_search gives these values:
+n_estimators: 35
+max_depth: 3
+learning_rate: 0.35

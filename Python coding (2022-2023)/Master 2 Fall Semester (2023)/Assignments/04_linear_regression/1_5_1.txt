@@ -1,0 +1,3 @@
+The predictions do not have the exact same patterns as the actual values. 
+In the axis x, the predictions and the actual values are in the same interval of values [0;140]. Yet, in the axis y, the predictions have values only in the interval [0.2;0.75] and the actual values are in a broader interval of values [0;2.5].
+Therefore these predictions are not the most accurate.
